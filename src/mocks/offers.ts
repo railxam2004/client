@@ -2,136 +2,117 @@ import { FullOffer } from '../types/offer';
 
 export const offers: FullOffer[] = [
   {
-    id: 'bbb06a0e-3f92-446d-9a68-cb64b5d38e2b',
-    title: 'Wood and stone place',
-    description: 'A new spacious villa, one floor. All commodities, jacuzzi and beautiful scenery. Ideal for families',
+    id: 'offer-1',
+    title: 'Canal view apartment',
+    description: 'Beautiful apartment near the Amsterdam canal.',
     type: 'apartment',
-    price: 370,
-    images: ['20.jpg', '17.jpg', '16.jpg', '15.jpg', '2.jpg', '7.jpg'],
+    price: 120,
+    images: ['20.jpg', '17.jpg', '16.jpg'],
     city: {
-      name: 'Paris',
+      name: 'Amsterdam',
       location: {
-        latitude: 48.85661,
-        longitude: 2.351499,
+        latitude: 52.3909553943508,
+        longitude: 4.85309666406198,
         zoom: 13
       }
     },
     location: {
-      latitude: 48.86861,
-      longitude: 2.342499,
+      latitude: 52.3909553943508,
+      longitude: 4.85309666406198,
       zoom: 16
     },
-    goods: [
-      'Heating', 'Wi-Fi', 'Fridge', 'Laptop friendly workspace', 'Air conditioning',
-      'Washer', 'Towels', 'Dishwasher', 'Kitchen', 'Washing machine', 'Coffee machine'
-    ],
-    host: {
-      isPro: true,
-      name: 'Angelina',
-      avatarUrl: 'avatar-angelina.jpg'
-    },
-    isPremium: false,
-    isFavorite: true,
-    rating: 4.9,
+    goods: ['Heating', 'Wi-Fi', 'Kitchen', 'Coffee machine'],
+    host: { name: 'Isaac', avatarUrl: 'avatar-angelina.jpg', isPro: true },
+    isPremium: true,
+    isFavorite: false,
+    rating: 4.8,
     bedrooms: 2,
     maxAdults: 3
   },
 
   {
-    id: 'e1c1fc5b-af32-4b38-a3a0-012345678912',
-    title: 'Modern apartment in Cologne',
-    description: 'Modern cozy apartment in the heart of Cologne. Perfect for couples.',
+    id: 'offer-2',
+    title: 'Cozy studio in Amsterdam',
+    description: 'Perfect for a short stay in the city center.',
+    type: 'room',
+    price: 80,
+    images: ['apartment-01.jpg', 'apartment-02.jpg'],
+    city: {
+      name: 'Amsterdam',
+      location: {
+        latitude: 52.3909553943508,
+        longitude: 4.85309666406198,
+        zoom: 13
+      }
+    },
+    location: {
+      latitude: 52.3609553943508,
+      longitude: 4.85309666406198,
+      zoom: 16
+    },
+    goods: ['Wi-Fi', 'Heating'],
+    host: { name: 'Tom', avatarUrl: 'avatar-tom.jpg', isPro: false },
+    isPremium: false,
+    isFavorite: true,
+    rating: 4.6,
+    bedrooms: 1,
+    maxAdults: 2
+  },
+
+  {
+    id: 'offer-3',
+    title: 'Modern loft near park',
+    description: 'Stylish loft near a quiet Amsterdam park.',
     type: 'apartment',
-    price: 120,
-    images: ['apartment-01.jpg', 'apartment-02.jpg', 'apartment-03.jpg'],
+    price: 150,
+    images: ['apartment-03.jpg'],
     city: {
-      name: 'Cologne',
+      name: 'Amsterdam',
       location: {
-        latitude: 50.938361,
-        longitude: 6.959974,
+        latitude: 52.3909553943508,
+        longitude: 4.85309666406198,
         zoom: 13
       }
     },
     location: {
-      latitude: 50.950361,
-      longitude: 6.990974,
+      latitude: 52.3909553943508,
+      longitude: 4.929309666406198,
       zoom: 16
     },
-    goods: ['Wi-Fi', 'Heating', 'Kitchen', 'Coffee machine'],
-    host: {
-      isPro: false,
-      name: 'Johann',
-      avatarUrl: 'avatar-johann.jpg'
-    },
-    isPremium: true,
+    goods: ['Wi-Fi', 'Kitchen', 'Washer'],
+    host: { name: 'Anna', avatarUrl: 'avatar-angelina.jpg', isPro: true },
+    isPremium: false,
     isFavorite: false,
-    rating: 4.2,
+    rating: 4.7,
     bedrooms: 1,
     maxAdults: 2
   },
 
   {
-    id: '3d6fccc3-923d-4804-b0e3-abcdef111222',
-    title: 'Luxurious hotel room in Brussels',
-    description: 'Spacious room in a premium hotel in Brussels. Great service.',
-    type: 'hotel',
-    price: 240,
-    images: ['hotel-01.jpg', 'hotel-02.jpg'],
-    city: {
-      name: 'Brussels',
-      location: {
-        latitude: 50.846557,
-        longitude: 4.351697,
-        zoom: 13
-      }
-    },
-    location: {
-      latitude: 50.860557,
-      longitude: 4.361697,
-      zoom: 16
-    },
-    goods: ['Breakfast', 'Wi-Fi', 'Air conditioning', 'Towels'],
-    host: {
-      isPro: true,
-      name: 'Marie',
-      avatarUrl: 'avatar-marie.jpg'
-    },
-    isPremium: true,
-    isFavorite: false,
-    rating: 4.8,
-    bedrooms: 1,
-    maxAdults: 2
-  },
-
-  {
-    id: 'ff92aa57-75bb-4e40-bc26-777888999000',
-    title: 'Cozy house in Amsterdam',
-    description: 'A cozy family house near the canal. Perfect for long stays.',
+    id: 'offer-4',
+    title: 'Spacious house with garden',
+    description: 'Large house ideal for family stays.',
     type: 'house',
-    price: 310,
+    price: 220,
     images: ['house-01.jpg'],
     city: {
       name: 'Amsterdam',
       location: {
-        latitude: 52.37454,
-        longitude: 4.897976,
+        latitude: 52.3909553943508,
+        longitude: 4.85309666406198,
         zoom: 13
       }
     },
     location: {
-      latitude: 52.390955,
-      longitude: 4.853096,
+      latitude: 52.3809553943508,
+      longitude: 4.939309666406198,
       zoom: 16
     },
-    goods: ['Heating', 'Kitchen', 'Dishwasher', 'Washer', 'Wi-Fi'],
-    host: {
-      isPro: false,
-      name: 'Tom',
-      avatarUrl: 'avatar-tom.jpg'
-    },
-    isPremium: false,
+    goods: ['Heating', 'Dishwasher', 'Washer', 'Wi-Fi'],
+    host: { name: 'Max', avatarUrl: 'avatar-max.jpg', isPro: false },
+    isPremium: true,
     isFavorite: true,
-    rating: 4.5,
+    rating: 4.9,
     bedrooms: 3,
     maxAdults: 5
   }

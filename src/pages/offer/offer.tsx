@@ -1,8 +1,15 @@
+// src/pages/offer/offer.tsx
 import { useParams } from 'react-router-dom';
 import { FullOffer } from '../../types/offer';
 import PageNotFound from '../page-not-found/page-not-found';
 import { Logo } from '../../components/logo/logo';
+
+// Новые компоненты ЛР-4
 import { ReviewForm } from '../../components/review-form/review-form';
+import { ReviewsList } from '../../components/reviews-list/reviews-list';
+import { reviews } from '../../mocks/reviews';
+import { Map } from '../../components/map/map';
+import { NearbyPlacesList } from '../../components/nearby-places-list/nearby-places-list';
 
 type OfferProps = {
   offers: FullOffer[];
@@ -16,9 +23,15 @@ function OfferPage({ offers }: OfferProps): JSX.Element {
     return <PageNotFound />;
   }
 
+  // Nearby (просто берём 3 других оффера того же города)
+  const nearbyOffers = offers
+    .filter((item) => item.id !== offer.id && item.city.name === offer.city.name)
+    .slice(0, 3);
+
   return (
     <div className="page page--gray page--offer">
       <div className="page">
+        {/* ШАПКА С ЛОГОТИПОМ */}
         <header className="header">
           <div className="container">
             <div className="header__wrapper">
@@ -26,6 +39,7 @@ function OfferPage({ offers }: OfferProps): JSX.Element {
                 <Logo />
               </div>
 
+              {/* ТВОЯ СТАРАЯ НАВИГАЦИЯ */}
               <nav className="header__nav">
                 <ul className="header__nav-list">
                   <li className="header__nav-item user">
@@ -47,15 +61,17 @@ function OfferPage({ offers }: OfferProps): JSX.Element {
           </div>
         </header>
 
+        {/* ОСНОВНОЙ КОНТЕНТ */}
         <main className="page__main page__main--offer">
           <section className="offer">
 
-            {offer.isPremium ? (
+            {offer.isPremium && (
               <div className="offer__mark">
                 <span>Premium</span>
               </div>
-            ) : null}
+            )}
 
+            {/* ГАЛЕРЕЯ */}
             <div className="offer__gallery-container container">
               <div className="offer__gallery">
                 {offer.images.map((item) => (
@@ -66,6 +82,7 @@ function OfferPage({ offers }: OfferProps): JSX.Element {
               </div>
             </div>
 
+            {/* ИНФОРМАЦИЯ ОБ ОФФЕРЕ */}
             <div className="offer__container container">
               <div className="offer__wrapper">
 
@@ -123,30 +140,45 @@ function OfferPage({ offers }: OfferProps): JSX.Element {
                       />
                     </div>
                     <span className="offer__user-name">{offer.host.name}</span>
-                    {offer.host.isPro ? <span className="offer__user-status">Pro</span> : null}
+                    {offer.host.isPro && (
+                      <span className="offer__user-status">Pro</span>
+                    )}
                   </div>
 
                   <div className="offer__description">
                     <p className="offer__text">{offer.description}</p>
                   </div>
                 </div>
+
               </div>
             </div>
 
-            <section className="offer__map map"></section>
+            {/* КАРТА (для оффера и nearby) */}
+            <Map
+              className="offer__map"
+              city={offer.city}
+              points={nearbyOffers}
+            />
 
-            {/* --- Reviews + Form --- */}
+            {/* ОТЗЫВЫ */}
             <section className="offer__reviews reviews">
-              <h2 className="reviews__title">Reviews · <span className="reviews__amount">1</span></h2>
-
-              <ul className="reviews__list">
-                {/* оставляем твои отзывы как есть */}
-              </ul>
-
+              <ReviewsList reviews={reviews} />
               <ReviewForm />
             </section>
 
           </section>
+
+          {/* БЛОК "Other places in the neighbourhood" */}
+          <section className="near-places places">
+            <div className="near-places__container container">
+              <h2 className="near-places__title">
+                Other places in the neighbourhood
+              </h2>
+
+              <NearbyPlacesList offers={nearbyOffers} />
+            </div>
+          </section>
+
         </main>
       </div>
     </div>
