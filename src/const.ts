@@ -1,5 +1,6 @@
+// src/const.ts
 const Setting = {
-  rentOffersCount: 312,
+  rentOffersCount: 4,
 } as const;
 
 const AppRoute = {
@@ -9,17 +10,75 @@ const AppRoute = {
   Offer: '/offer/:id',
 } as const;
 
-
-export { AppRoute };
-
-
-export { Setting };
-
 const AuthorizationStatus = {
   Auth: 'AUTH',
   NoAuth: 'NO_AUTH',
   Unknown: 'UNKNOWN',
 } as const;
 
-export { AuthorizationStatus };
+// ДОБАВЬТЕ ЭТИ КОНСТАНТЫ ДЛЯ ЛР-5:
+const CITIES_LOCATION = [
+  {
+    name: 'Paris',
+    location: {
+      latitude: 48.85661,
+      longitude: 2.351499,
+      zoom: 13,
+    },
+  },
+  {
+    name: 'Cologne',
+    location: {
+      latitude: 50.9375,
+      longitude: 6.9603,
+      zoom: 13,
+    },
+  },
+  {
+    name: 'Brussels',
+    location: {
+      latitude: 50.8503,
+      longitude: 4.3517,
+      zoom: 13,
+    },
+  },
+  {
+    name: 'Amsterdam',
+    location: {
+      latitude: 52.37454,
+      longitude: 4.897976,
+      zoom: 13,
+    },
+  },
+  {
+    name: 'Hamburg',
+    location: {
+      latitude: 53.550341,
+      longitude: 10.000654,
+      zoom: 13,
+    },
+  },
+  {
+    name: 'Dusseldorf',
+    location: {
+      latitude: 51.225402,
+      longitude: 6.776314,
+      zoom: 13,
+    },
+  },
+] as const;
 
+const SortOffersType = {
+  Popular: 'Popular',
+  PriceToHigh: 'Price: low to high',
+  PriceToLow: 'Price: high to low',
+  TopRated: 'Top rated first',
+} as const;
+
+export { 
+  AppRoute, 
+  Setting, 
+  AuthorizationStatus, 
+  CITIES_LOCATION, 
+  SortOffersType 
+};

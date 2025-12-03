@@ -1,3 +1,4 @@
+// src/components/favorite-card-list/favorite-card-list.tsx
 import { FavoriteCard } from '../favorite-card/favorite-card';
 import { OffersList } from '../../types/offer';
 
@@ -5,25 +6,45 @@ type FavoriteCardListProps = {
   offersList: OffersList[];
 };
 
-function FavoriteCardList({ offersList }: FavoriteCardListProps) {
+function FavoriteCardList({ offersList }: FavoriteCardListProps): JSX.Element {
+  // Группировка по городам (если нужно по макету)
+  const groupedByCity: Record<string, OffersList[]> = {};
+  
+  offersList.forEach((offer) => {
+    if (!groupedByCity[offer.city.name]) {
+      groupedByCity[offer.city.name] = [];
+    }
+    groupedByCity[offer.city.name].push(offer);
+  });
+
   return (
-    <ul className="favorites__list">
-      {offersList.map((item) => (
-        <li key={item.id} className="favorites__locations-items">
+    <>
+      {Object.entries(groupedByCity).map(([cityName, cityOffers]) => (
+        <li key={cityName} className="favorites__locations-items">
+          <div className="favorites__locations locations locations--current">
+            <div className="locations__item">
+              <a className="locations__item-link" href="#">
+                <span>{cityName}</span>
+              </a>
+            </div>
+          </div>
           <div className="favorites__places">
-            <FavoriteCard
-              id={item.id}
-              title={item.title}
-              type={item.type}
-              price={item.price}
-              previewImage={item.previewImage}
-              rating={item.rating}
-              isPremium={item.isPremium}
-            />
+            {cityOffers.map((offer) => (
+              <FavoriteCard
+                key={offer.id}
+                id={offer.id}
+                title={offer.title}
+                type={offer.type}
+                price={offer.price}
+                previewImage={offer.previewImage}
+                isPremium={offer.isPremium}
+                rating={offer.rating}
+              />
+            ))}
           </div>
         </li>
       ))}
-    </ul>
+    </>
   );
 }
 

@@ -7,7 +7,7 @@ export const offersList: OffersList[] = [
     title: 'Canal view apartment',
     type: 'apartment',
     price: 120,
-    previewImage: 'img/apartment-01.jpg',
+    previewImage: '/img/apartment-01.jpg', // ✅ Файл существует
     city: {
       name: 'Amsterdam',
       location: {
@@ -30,7 +30,7 @@ export const offersList: OffersList[] = [
     title: 'Cozy studio in city center',
     type: 'room',
     price: 80,
-    previewImage: 'img/apartment-02.jpg',
+    previewImage: '/img/apartment-02.jpg', // ✅ Файл существует
     city: {
       name: 'Amsterdam',
       location: {
@@ -53,7 +53,7 @@ export const offersList: OffersList[] = [
     title: 'Modern loft near park',
     type: 'apartment',
     price: 150,
-    previewImage: 'img/apartment-03.jpg',
+    previewImage: '/img/apartment-03.jpg', // ✅ Файл существует
     city: {
       name: 'Amsterdam',
       location: {
@@ -76,7 +76,7 @@ export const offersList: OffersList[] = [
     title: 'Spacious house with garden',
     type: 'house',
     price: 220,
-    previewImage: 'img/apartment-small-04.jpg',
+    previewImage: '/img/apartment-small-04.jpg', // ✅ Файл существует
     city: {
       name: 'Amsterdam',
       location: {

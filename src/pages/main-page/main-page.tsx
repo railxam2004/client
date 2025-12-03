@@ -1,32 +1,47 @@
-// src/pages/main-page/main-page.tsx
-
+import { useState } from 'react';
 import { Logo } from '../../components/logo/logo';
 import { CitiesCardList } from '../../components/cities-card-list/cities-card-list';
-import { OffersList } from '../../types/offer';
 import { Map } from '../../components/map/map';
+import { CitiesList } from '../../components/cities-list/cities-list';
+import { SortOptions } from '../../components/sort-options/sort-options';
+import { useAppSelector } from '../../hooks';
+import { getOffersByCity, sortOffersByType } from '../../utils';
+import { SortOffer } from '../../types/sort';
 
-type MainPageProps = {
-  rentalOffersCount: number;
-  offersList: OffersList[];
-};
+function MainPage(): JSX.Element {
+  const selectedCity = useAppSelector((state) => state.city);
+  const allOffers = useAppSelector((state) => state.offers);
+  
+  const [activeSort, setActiveSort] = useState<SortOffer>('Popular');
+  const [selectedOfferId, setSelectedOfferId] = useState<string | null>(null);
 
-function MainPage({ rentalOffersCount, offersList }: MainPageProps): JSX.Element {
+  // Получаем предложения для выбранного города
+  const selectedCityOffers = getOffersByCity(selectedCity?.name, allOffers);
+  
+  // Сортируем предложения
+  const sortedOffers = sortOffersByType(selectedCityOffers, activeSort);
+  
+  // Получаем выбранное предложение для подсветки на карте
+  const selectedOffer = selectedOfferId 
+    ? allOffers.find((offer) => offer.id === selectedOfferId) 
+    : undefined;
 
-  // Берём город у любого оффера — по ЛР-4 ВСЕ в Амстердаме
-  const city = offersList[0].city;
+  const handleCardHover = (id: string) => {
+    setSelectedOfferId(id);
+  };
+
+  const handleCardLeave = () => {
+    setSelectedOfferId(null);
+  };
 
   return (
     <div className="page page--gray page--main">
-
-      {/* ---- HEADER ---- */}
       <header className="header">
         <div className="container">
           <div className="header__wrapper">
             <div className="header__left">
               <Logo />
             </div>
-
-            {/* ---- ВОССТАНОВЛЕННАЯ ТВОЯ СТАРАЯ НАВИГАЦИЯ ---- */}
             <nav className="header__nav">
               <ul className="header__nav-list">
                 <li className="header__nav-item user">
@@ -43,42 +58,41 @@ function MainPage({ rentalOffersCount, offersList }: MainPageProps): JSX.Element
                 </li>
               </ul>
             </nav>
-
           </div>
         </div>
       </header>
 
-      {/* ---- MAIN ---- */}
       <main className="page__main page__main--index">
         <h1 className="visually-hidden">Cities</h1>
-
+        <div className="tabs">
+          <section className="locations container">
+            <CitiesList selectedCity={selectedCity} />
+          </section>
+        </div>
         <div className="cities">
           <div className="cities__places-container container">
-
-            {/* ---- ЛЕВАЯ ЧАСТЬ (список предложений) ---- */}
             <section className="cities__places places">
               <h2 className="visually-hidden">Places</h2>
-
               <b className="places__found">
-                {rentalOffersCount} places to stay in Amsterdam
+                {sortedOffers.length} places to stay in {selectedCity?.name}
               </b>
-
-              {/* ---- Список карточек ---- */}
-              <CitiesCardList offersList={offersList} />
+              <SortOptions activeSorting={activeSort} onChange={setActiveSort} />
+              <CitiesCardList 
+                offersList={sortedOffers}
+                onMouseEnter={handleCardHover}
+                onMouseLeave={handleCardLeave}
+              />
             </section>
-
-            {/* ---- ПРАВАЯ ЧАСТЬ (КАРТА) ---- */}
             <div className="cities__right-section">
               <Map
                 className="cities__map"
-                city={city}
-                points={offersList}   // точки — сами офферы, у каждого есть location
+                city={selectedCity!}
+                points={selectedCityOffers}
+                selectedPoint={selectedOffer}
               />
             </div>
-
           </div>
         </div>
-
       </main>
     </div>
   );

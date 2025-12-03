@@ -1,4 +1,3 @@
-// src/pages/offer/offer.tsx
 import { useParams } from 'react-router-dom';
 import { FullOffer } from '../../types/offer';
 import PageNotFound from '../page-not-found/page-not-found';
@@ -23,10 +22,23 @@ function OfferPage({ offers }: OfferProps): JSX.Element {
     return <PageNotFound />;
   }
 
-  // Nearby (просто берём 3 других оффера того же города)
+  // ДЕБАГ: Выведем данные в консоль
+  console.log('=== OFFER PAGE DEBUG ===');
+  console.log('Current offer:', offer);
+  console.log('Offer city:', offer.city);
+  console.log('Offer location:', offer.location);
+
+  // Nearby (берём 3 других оффера того же города)
   const nearbyOffers = offers
     .filter((item) => item.id !== offer.id && item.city.name === offer.city.name)
     .slice(0, 3);
+
+  console.log('Nearby offers:', nearbyOffers);
+  console.log('All offers:', offers);
+  console.log('=======================');
+
+  // Создаем массив точек для карты: nearby + текущий оффер
+  const pointsForMap = [...nearbyOffers, offer];
 
   return (
     <div className="page page--gray page--offer">
@@ -39,7 +51,7 @@ function OfferPage({ offers }: OfferProps): JSX.Element {
                 <Logo />
               </div>
 
-              {/* ТВОЯ СТАРАЯ НАВИГАЦИЯ */}
+              {/* НАВИГАЦИЯ */}
               <nav className="header__nav">
                 <ul className="header__nav-list">
                   <li className="header__nav-item user">
@@ -154,11 +166,14 @@ function OfferPage({ offers }: OfferProps): JSX.Element {
             </div>
 
             {/* КАРТА (для оффера и nearby) */}
-            <Map
-              className="offer__map"
-              city={offer.city}
-              points={nearbyOffers}
-            />
+            <section className="offer__map map-container">
+              <Map
+                className="offer__map"
+                city={offer.city}
+                points={pointsForMap}
+                selectedPoint={offer}
+              />
+            </section>
 
             {/* ОТЗЫВЫ */}
             <section className="offer__reviews reviews">
@@ -175,7 +190,11 @@ function OfferPage({ offers }: OfferProps): JSX.Element {
                 Other places in the neighbourhood
               </h2>
 
-              <NearbyPlacesList offers={nearbyOffers} />
+              {nearbyOffers.length > 0 ? (
+                <NearbyPlacesList offers={nearbyOffers} />
+              ) : (
+                <p className="near-places__empty">No other places in this area</p>
+              )}
             </div>
           </section>
 

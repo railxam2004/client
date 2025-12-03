@@ -7,7 +7,7 @@ export const offers: FullOffer[] = [
     description: 'Beautiful apartment near the Amsterdam canal.',
     type: 'apartment',
     price: 120,
-    images: ['20.jpg', '17.jpg', '16.jpg'],
+    images: ['/img/apartment-01.jpg', '/img/apartment-02.jpg', '/img/apartment-03.jpg'], // ← использовать существующие файлы
     city: {
       name: 'Amsterdam',
       location: {
@@ -22,21 +22,21 @@ export const offers: FullOffer[] = [
       zoom: 16
     },
     goods: ['Heating', 'Wi-Fi', 'Kitchen', 'Coffee machine'],
-    host: { name: 'Isaac', avatarUrl: 'avatar-angelina.jpg', isPro: true },
+    host: { name: 'Isaac', avatarUrl: '/img/avatar-angelina.jpg', isPro: true }, // ← добавить /img/
     isPremium: true,
     isFavorite: false,
     rating: 4.8,
     bedrooms: 2,
     maxAdults: 3
   },
-
+  
   {
     id: 'offer-2',
     title: 'Cozy studio in Amsterdam',
     description: 'Perfect for a short stay in the city center.',
     type: 'room',
     price: 80,
-    images: ['apartment-01.jpg', 'apartment-02.jpg'],
+    images: ['/img/room.jpg', '/img/studio-01.jpg'], // ← использовать room.jpg вместо apartment-01.jpg
     city: {
       name: 'Amsterdam',
       location: {
@@ -51,7 +51,7 @@ export const offers: FullOffer[] = [
       zoom: 16
     },
     goods: ['Wi-Fi', 'Heating'],
-    host: { name: 'Tom', avatarUrl: 'avatar-tom.jpg', isPro: false },
+    host: { name: 'Tom', avatarUrl: '/img/avatar-max.jpg', isPro: false }, // ← avatar-max.jpg вместо avatar-tom.jpg
     isPremium: false,
     isFavorite: true,
     rating: 4.6,
@@ -65,7 +65,7 @@ export const offers: FullOffer[] = [
     description: 'Stylish loft near a quiet Amsterdam park.',
     type: 'apartment',
     price: 150,
-    images: ['apartment-03.jpg'],
+    images: ['/img/apartment-03.jpg'], // ← добавить /img/
     city: {
       name: 'Amsterdam',
       location: {
@@ -80,7 +80,7 @@ export const offers: FullOffer[] = [
       zoom: 16
     },
     goods: ['Wi-Fi', 'Kitchen', 'Washer'],
-    host: { name: 'Anna', avatarUrl: 'avatar-angelina.jpg', isPro: true },
+    host: { name: 'Anna', avatarUrl: '/img/avatar-angelina.jpg', isPro: true },
     isPremium: false,
     isFavorite: false,
     rating: 4.7,
@@ -94,7 +94,7 @@ export const offers: FullOffer[] = [
     description: 'Large house ideal for family stays.',
     type: 'house',
     price: 220,
-    images: ['house-01.jpg'],
+    images: ['/img/apartment-03.jpg'], // ← добавить /img/
     city: {
       name: 'Amsterdam',
       location: {
@@ -109,7 +109,7 @@ export const offers: FullOffer[] = [
       zoom: 16
     },
     goods: ['Heating', 'Dishwasher', 'Washer', 'Wi-Fi'],
-    host: { name: 'Max', avatarUrl: 'avatar-max.jpg', isPro: false },
+    host: { name: 'Max', avatarUrl: '/img/avatar-max.jpg', isPro: false },
     isPremium: true,
     isFavorite: true,
     rating: 4.9,

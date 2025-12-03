@@ -1,5 +1,5 @@
 // src/components/nearby-places-list/nearby-places-list.tsx
-import CitiesCard from '../cities-card/cities-card';
+import { CitiesCard } from '../cities-card/cities-card';  // ← Используйте named import
 import { FullOffer } from '../../types/offer';
 
 type NearbyPlacesListProps = {
@@ -16,8 +16,8 @@ function NearbyPlacesList({ offers }: NearbyPlacesListProps): JSX.Element {
           title={offer.title}
           type={offer.type}
           price={offer.price}
+          previewImage={offer.images[0]} // первое фото как preview
           isPremium={offer.isPremium}
-          previewImage={offer.images[0]} // используем первую картинку как превью
           rating={offer.rating}
         />
       ))}
