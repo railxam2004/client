@@ -1,13 +1,12 @@
 // src/pages/favorites/favorites.tsx
+import { Link } from 'react-router-dom'; // ← ДОБАВЬТЕ ЭТОТ ИМПОРТ
 import { Logo } from '../../components/logo/logo';
 import { FavoriteCardList } from '../../components/favorite-card-list/favorite-card-list';
 import { useAppSelector } from '../../hooks';
+import { AppRoute } from '../../const'; // ← ДОБАВЬТЕ ЭТОТ ИМПОРТ
 
 function FavoritesPage(): JSX.Element {
-  // Получаем все предложения из Redux
   const offersList = useAppSelector((state) => state.offers);
-  
-  // Фильтруем только избранные
   const favoriteOffers = offersList.filter((offer) => offer.isFavorite);
 
   return (
@@ -18,15 +17,17 @@ function FavoritesPage(): JSX.Element {
             <div className="header__left">
               <Logo />
             </div>
-            {/* Добавьте навигацию для consistency */}
             <nav className="header__nav">
               <ul className="header__nav-list">
                 <li className="header__nav-item user">
-                  <a className="header__nav-link header__nav-link--profile" href="#">
                     <div className="header__avatar-wrapper user__avatar-wrapper"></div>
                     <span className="header__user-name user__name">Myemail@gmail.com</span>
+                    <Link  // ← ИЗМЕНИТЕ <a> НА <Link>
+                    to={AppRoute.Favorites}
+                    className="header__nav-link header__nav-link--profile"
+                  >
                     <span className="header__favorite-count">{favoriteOffers.length}</span>
-                  </a>
+                  </Link> {/* ← ЗАКРЫВАЕМ Link */}
                 </li>
                 <li className="header__nav-item">
                   <a className="header__nav-link" href="#">

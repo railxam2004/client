@@ -1,4 +1,6 @@
+// src/pages/main-page/main-page.tsx
 import { useState } from 'react';
+import { Link } from 'react-router-dom'; // ← ДОБАВЬТЕ ЭТОТ ИМПОРТ
 import { Logo } from '../../components/logo/logo';
 import { CitiesCardList } from '../../components/cities-card-list/cities-card-list';
 import { Map } from '../../components/map/map';
@@ -7,6 +9,7 @@ import { SortOptions } from '../../components/sort-options/sort-options';
 import { useAppSelector } from '../../hooks';
 import { getOffersByCity, sortOffersByType } from '../../utils';
 import { SortOffer } from '../../types/sort';
+import { AppRoute } from '../../const'; // ← ДОБАВЬТЕ ЭТОТ ИМПОРТ
 
 function MainPage(): JSX.Element {
   const selectedCity = useAppSelector((state) => state.city);
@@ -25,6 +28,7 @@ function MainPage(): JSX.Element {
   const selectedOffer = selectedOfferId 
     ? allOffers.find((offer) => offer.id === selectedOfferId) 
     : undefined;
+  
 
   const handleCardHover = (id: string) => {
     setSelectedOfferId(id);
@@ -34,7 +38,11 @@ function MainPage(): JSX.Element {
     setSelectedOfferId(null);
   };
 
-  return (
+  const favoriteOffersCount = useAppSelector((state) => 
+  state.offers.filter((offer) => offer.isFavorite).length
+  );
+
+    return (
     <div className="page page--gray page--main">
       <header className="header">
         <div className="container">
@@ -45,11 +53,14 @@ function MainPage(): JSX.Element {
             <nav className="header__nav">
               <ul className="header__nav-list">
                 <li className="header__nav-item user">
-                  <a className="header__nav-link header__nav-link--profile" href="#">
                     <div className="header__avatar-wrapper user__avatar-wrapper"></div>
                     <span className="header__user-name user__name">Myemail@gmail.com</span>
-                    <span className="header__favorite-count">3</span>
-                  </a>
+                                      <Link  // ← ИЗМЕНИТЕ <a> НА <Link>
+                    to={AppRoute.Favorites}
+                    className="header__nav-link header__nav-link--profile"
+                  >
+                    <span className="header__favorite-count">{favoriteOffersCount}</span>
+                  </Link> {/* ← ЗАКРЫВАЕМ Link */}
                 </li>
                 <li className="header__nav-item">
                   <a className="header__nav-link" href="#">

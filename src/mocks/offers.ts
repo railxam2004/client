@@ -13,7 +13,7 @@ export const offers: FullOffer[] = [
       location: {
         latitude: 52.3909553943508,
         longitude: 4.85309666406198,
-        zoom: 13
+        zoom: 12
       }
     },
     location: {
@@ -42,7 +42,7 @@ export const offers: FullOffer[] = [
       location: {
         latitude: 52.3909553943508,
         longitude: 4.85309666406198,
-        zoom: 13
+        zoom: 12
       }
     },
     location: {
@@ -71,7 +71,7 @@ export const offers: FullOffer[] = [
       location: {
         latitude: 52.3909553943508,
         longitude: 4.85309666406198,
-        zoom: 13
+        zoom: 12
       }
     },
     location: {
@@ -100,7 +100,7 @@ export const offers: FullOffer[] = [
       location: {
         latitude: 52.3909553943508,
         longitude: 4.85309666406198,
-        zoom: 13
+        zoom: 12
       }
     },
     location: {

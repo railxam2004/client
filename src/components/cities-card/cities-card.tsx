@@ -1,3 +1,4 @@
+// src/components/cities-card/cities-card.tsx
 import { Link } from 'react-router-dom';
 import { AppRoute } from '../../const';
 
@@ -36,7 +37,8 @@ function CitiesCard({
         </div>
       )}
       <div className="cities__image-wrapper place-card__image-wrapper">
-        <Link to={`${AppRoute.Offer}/${id}`}>
+        {/* ИСПРАВЬТЕ ССЫЛКУ: */}
+        <Link to={`/offer/${id}`}> {/* ← ТАК ЖЕ КАК В FAVORITE-CARD */}
           <img
             className="place-card__image"
             src={previewImage}
@@ -66,7 +68,8 @@ function CitiesCard({
           </div>
         </div>
         <h2 className="place-card__name">
-          <Link to={`${AppRoute.Offer}/${id}`}>{title}</Link>
+          {/* ИСПРАВЬТЕ ССЫЛКУ И ЗДЕСЬ: */}
+          <Link to={`/offer/${id}`}>{title}</Link>
         </h2>
         <p className="place-card__type">{type}</p>
       </div>

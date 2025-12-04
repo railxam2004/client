@@ -1,4 +1,4 @@
-// src/components/app/app.tsx - уже правильный
+// src/components/app/app.tsx
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import MainPage from '../../pages/main-page/main-page';
 import Login from '../../pages/login/login';
@@ -22,12 +22,13 @@ function App({ offers }: AppProps): JSX.Element {
         <Route
           path={AppRoute.Favorites}
           element={
-            <PrivateRoute authorizationStatus={AuthorizationStatus.NoAuth}>
+            <PrivateRoute authorizationStatus={AuthorizationStatus.Auth}>
               <Favorites />
             </PrivateRoute>
           }
         />
-        <Route path={`${AppRoute.Offer}/:id`} element={<OfferPage offers={offers} />} />
+        {/* ИСПРАВЬТЕ ЭТУ СТРОКУ: */}
+        <Route path={AppRoute.Offer} element={<OfferPage offers={offers} />} /> {/* ← УБРАТЬ /:id */}
         <Route path="*" element={<PageNotFound />} />
       </Routes>
     </BrowserRouter>
