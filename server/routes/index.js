@@ -13,6 +13,7 @@ app.use('/static', express.static(path.resolve(__dirname, 'static')));
 
 router.use('/', offerRouter);
 router.use('/', userRotes);
+router.use('/comments', reviewRouter);
 
 export { router };
 

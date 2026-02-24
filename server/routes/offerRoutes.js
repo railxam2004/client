@@ -12,4 +12,7 @@ router.post('/offers', upload.fields([
   { name: 'photos', maxCount: 6 }
 ]), createOffer);
 
+router.get('/favorite', getFavoriteOffers);
+router.post('/favorite/:offerId/:status', authenticateToken, toggleFavorite);
+
 export default router;
