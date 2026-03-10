@@ -7,12 +7,15 @@ import fs from 'fs';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+// Путь к папке для изображений
 const staticDir = path.resolve(__dirname, '..', 'static');
 
+// Если папки нет - она создается
 if (!fs.existsSync(staticDir)) {
     fs.mkdirSync(staticDir);
 }
 
+// Настройка хранилища файлов
 const storage = multer.diskStorage({
     destination: (req, file, cb) => cb(null, staticDir),
     filename: (req, file, cb) => {

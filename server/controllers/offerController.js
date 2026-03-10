@@ -1,122 +1,123 @@
 import { Offer } from '../models/offer.js';
-import { User } from '../models/user.js';
+import { User } from '../models/user.js'; // Нужно для подгрузки автора
 import ApiError from '../error/ApiError.js';
 import { adaptOfferToClient, adaptFullOfferToClient } from '../adapters/offerAdapter.js';
-// Функция создания предложения
+
 export async function createOffer(req, res, next) {
-  try {
-    const {
-      title, description, publishDate, city,
-      isPremium, isFavorite, rating, type, rooms, guests, price,
-      features, commentsCount, latitude, longitude, userId
-    } = req.body;
+    try {
+        const {
+            title, description, publishDate, city,
+            isPremium, isFavorite, rating, type, rooms, guests, price,
+            features, commentsCount, latitude, longitude, userId
+        } = req.body;
 
-    // Проверка наличия превью
-    if (!req.files?.previewImage || req.files.previewImage.length === 0) {
-      return next(ApiError.badRequest('Превью изображение обязательно для загрузки'));
+        if (!req.files?.previewImage || req.files.previewImage.length === 0) {
+            return next(ApiError.badRequest('Превью изображение обязательно для загрузки'));
+        }
+
+        const previewImagePath = `/static/${req.files.previewImage[0].filename}`;
+        
+        let processedPhotos = [];
+        if (req.files?.photos) {
+            processedPhotos = req.files.photos.map(file => `/static/${file.filename}`);
+        }
+
+        let parsedFeatures = [];
+        if (features) {
+            try {
+                parsedFeatures = typeof features === 'string' ? JSON.parse(features) : features;
+            } catch {
+                parsedFeatures = features.split(',');
+            }
+        }
+
+        const offer = await Offer.create({
+            title,
+            description,
+            publishDate: publishDate || new Date(),
+            city,
+            previewImage: previewImagePath,
+            photos: processedPhotos,
+            isPremium: isPremium === 'true',
+            isFavorite: isFavorite === 'true',
+            rating,
+            type,
+            rooms,
+            guests,
+            price,
+            features: parsedFeatures,
+            commentsCount: commentsCount || 0,
+            latitude,
+            longitude,
+            authorId: userId // Тут важно: передаем ID того пользователя, которого мы создали в БД
+        });
+
+        return res.status(201).json(offer);
+    } catch (error) {
+        next(ApiError.internal(`Не удалось добавить предложение: ${error.message}`));
     }
-
-    const previewImagePath = `/static/${req.files.previewImage[0].filename}`;
-
-    // Обработка массива фотографий
-    let processedPhotos = [];
-    if (req.files?.photos) {
-      processedPhotos = req.files.photos.map(file => `/static/${file.filename}`);
-    }
-
-    // Обработка списка удобств (features)
-    let parsedFeatures = [];
-    if (features) {
-      try {
-        parsedFeatures = typeof features === 'string' ? JSON.parse(features) : features;
-      } catch {
-        parsedFeatures = features.split(',');
-      }
-    }
-
-    const offer = await Offer.create({
-      title,
-      description,
-      publishDate,
-      city,
-      previewImage: previewImagePath,
-      photos: processedPhotos,
-      isPremium,
-      isFavorite,
-      rating,
-      type,
-      rooms,
-      guests,
-      price,
-      features: parsedFeatures,
-      commentsCount,
-      latitude,
-      longitude,
-      authorId: userId
-    });
-
-    return res.status(201).json(offer);
-  } catch (error) {
-    next(ApiError.internal('Не удалось добавить предложение: ' + error.message));
-  }
 }
 
-// Функция получения всех предложений (пока старая версия, обновим в 5 задании)
 export async function getAllOffers(req, res, next) {
-  try {
-    const offers = await Offer.findAll();
-    // Прогоняем каждый оффер через адаптер
-    const adaptedOffers = offers.map(offer => adaptOfferToClient(offer));
-    return res.status(200).json(adaptedOffers);
-  } catch (error) {
-    next(ApiError.internal('Не удалось получить список предложений: ' + error.message));
-  }
-}
-
-export async function getFullOffer(req, res, next) {
-  try {
-    const { id } = req.params;
-    const offer = await Offer.findByPk(id, {
-      include: { model: User, as: 'author' }
-    });
-
-    if (!offer) {
-      return next(ApiError.badRequest('Offer not found'));
+    try {
+        const offers = await Offer.findAll();
+        const adaptedOffers = offers.map(adaptOfferToClient);
+        res.status(200).json(adaptedOffers);
+    } catch (error) {
+        next(ApiError.internal('Не удалось получить список предложений'));
     }
-
-    const fullOffer = adaptFullOfferToClient(offer, offer.author);
-    return res.json(fullOffer);
-
-  } catch (error) {
-    next(ApiError.internal('Ошибка получения предложения: ' + error.message));
-  }
 }
 
-// Получение списка избранного
+// Задание 6: Самостоятельная реализация getFullOffer
+export async function getFullOffer(req, res, next) {
+    try {
+        const { id } = req.params; // 1. Извлекаем ID
+        
+        // 2 и 3. Ищем по ID с подгрузкой автора
+        const offer = await Offer.findByPk(id, {
+            include: { model: User, as: 'author' }
+        });
+
+        // 4. Проверка на существование
+        if (!offer) {
+            return next(ApiError.badRequest('Offer not found'));
+        }
+
+        // 5. Пропускаем через адаптер
+        const fullOffer = adaptFullOfferToClient(offer, offer.author);
+        
+        // 6. Возвращаем клиенту
+        return res.status(200).json(fullOffer);
+    } catch (error) {
+        // 7. Проброс ошибки
+        next(ApiError.internal(`Ошибка при получении оффера: ${error.message}`));
+    }
+}
+
+// Функция из самостоятельного задания 2.1
 export const getFavoriteOffers = async (req, res, next) => {
-  try {
-    const offers = await Offer.findAll({ where: { isFavorite: true } });
-    const adapted = offers.map(offer => adaptOfferToClient(offer));
-    res.json(adapted);
-  } catch (e) {
-    next(ApiError.internal('Ошибка при получении избранного'));
-  }
+    try {
+        const offers = await Offer.findAll({ where: { isFavorite: true } });
+        const adaptedOffers = offers.map(adaptOfferToClient);
+        res.json(adaptedOffers);
+    } catch (error) {
+        next(ApiError.internal('Ошибка при получении избранных предложений'));
+    }
 };
 
-// Добавление/удаление из избранного
 export const toggleFavorite = async (req, res, next) => {
-  try {
-    const { offerId, status } = req.params;
-    const offer = await Offer.findByPk(offerId);
-    
-    if (!offer) {
-      return next(ApiError.internal('Предложение не найдено'));
+    try {
+        const { offerId, status } = req.params;
+        const offer = await Offer.findByPk(offerId);
+
+        if (!offer) {
+            return next(ApiError.notFound('Предложение не найдено'));
+        }
+
+        offer.isFavorite = status == '1';
+        await offer.save();
+        res.json(offer);
+    } catch (error) {
+        next(ApiError.internal('Ошибка при обновлении статуса избранного'));
     }
-    
-    offer.isFavorite = status === '1';
-    await offer.save();
-    res.json(offer);
-  } catch (error) {
-    next(ApiError.internal('Ошибка при обновлении статуса избранного'));
-  }
 };

@@ -1,6 +1,6 @@
 import bcrypt from 'bcrypt';
 import ApiError from '../error/ApiError.js';
-import { User } from '../models/models.js'; // Проверьте путь к модели User! В задании написано '../models/user.js', но обычно они в models.js
+import { User } from '../models/user.js';
 import jwt from 'jsonwebtoken';
 
 export const registration = async (req, res, next) => {
@@ -15,16 +15,14 @@ export const registration = async (req, res, next) => {
         if (candidate) {
             return next(ApiError.badRequest('Пользователь с таким email уже существует'));
         }
-        
-        // Проверка наличия файла, чтобы не упало с ошибкой
-        const avatarImage = req.file ? `/static/${req.file.filename}` : null; 
 
+        const avatarImage = `/static/${req.file.filename}`;
         const hashPassword = await bcrypt.hash(password, 5);
 
         const user = await User.create({
             email,
-            type: userType, // Внимательно: в коде задания userType, в модели часто поле называется просто type или role. Проверьте модель!
-            name: username, // Тоже проверьте поле: username или name
+            userType,
+            username,
             avatar: avatarImage,
             password: hashPassword
         });
@@ -33,50 +31,57 @@ export const registration = async (req, res, next) => {
             user: {
                 id: user.id,
                 email: user.email,
-                username: user.name, // или user.username
+                username: user.username,
                 avatarUrl: user.avatar,
-                isPro: user.type === 'pro'
+                isPro: user.userType === 'pro'
             }
         });
     } catch (error) {
-        next(ApiError.internal('Ошибка регистрации: ' + error.message));
+        next(ApiError.internal('Ошибка регистрации'));
     }
 };
 
 export const login = async (req, res, next) => {
-  try {
-    const { email, password } = req.body;
-    const user = await User.findOne({ where: { email } });
-    if (!user) return next(ApiError.badRequest('Пользователь не найден'));
-
-    const isValid = await bcrypt.compare(password, user.password);
-    if (!isValid) return next(ApiError.badRequest('Неверный пароль'));
-
-    const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, { expiresIn: '24h' });
-    res.json({ token });
-  } catch (error) {
-    next(ApiError.internal('Ошибка авторизации'));
-  }
+    try {
+        const { email, password } = req.body;
+        const user = await User.findOne({ where: { email } });
+        
+        if (!user) return next(ApiError.badRequest('Пользователь не найден'));
+        
+        const isValid = await bcrypt.compare(password, user.password);
+        if (!isValid) return next(ApiError.badRequest('Неверный пароль'));
+        
+        const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, { expiresIn: '24h' });
+        res.json({ token });
+    } catch (error) {
+        next(ApiError.internal('Ошибка авторизации'));
+    }
 };
 
 export const checkAuth = (req, res) => {
-  const user = req.user;
-  const token = jwt.sign(
-    { id: user.id, email: user.email, username: user.username, userType: user.userType, avatar: user.avatar },
-    process.env.JWT_SECRET,
-    { expiresIn: '24h' }
-  );
-  
-  return res.json({
-    id: user.id,
-    email: user.email,
-    username: user.username,
-    avatar: user.avatar,
-    isPro: user.userType === 'pro',
-    token
-  });
+    const user = req.user;
+    const token = jwt.sign(
+        {
+            id: user.id,
+            email: user.email,
+            username: user.username,
+            userType: user.userType,
+            avatar: user.avatar
+        },
+        process.env.JWT_SECRET,
+        { expiresIn: '24h' }
+    );
+
+    return res.json({
+        id: user.id,
+        email: user.email,
+        username: user.username,
+        avatar: user.avatar,
+        isPro: user.userType === 'pro',
+        token
+    });
 };
 
 export const logout = (req, res) => {
-  res.status(204).send();
+    res.status(204).send();
 };
