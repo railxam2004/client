@@ -6,6 +6,8 @@ import { fileURLToPath } from 'url';
 import sequelize from './config/database.js';
 import { router } from './routes/index.js';
 import errorMiddleware from './middleware/ErrorHandlingMiddleware.js'; // Задание 2
+import swaggerUi from 'swagger-ui-express';
+import YAML from 'yamljs';
 
 dotenv.config();
 
@@ -23,6 +25,9 @@ app.use('/', router);
 
 // Обработчик ошибок ДОЛЖЕН БЫТЬ В САМОМ КОНЦЕ, перед start()
 app.use(errorMiddleware); 
+
+const swaggerDocument = YAML.load('./docs/swagger.yaml');
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 const start = async () => {
     try {
