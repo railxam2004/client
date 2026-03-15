@@ -1,6 +1,5 @@
-import { useState, FormEvent, Fragment } from 'react';
+import { useState, FormEvent, Fragment, ChangeEvent } from 'react';
 
-// ВРЕМЕННО: SVG спрайт для иконок
 const SvgSprite = () => (
   <svg xmlns="http://www.w3.org/2000/svg" style={{ display: 'none' }}>
     <symbol id="icon-star" viewBox="0 0 13 12">
@@ -23,52 +22,28 @@ function ReviewForm({ onAddReview }: ReviewFormProps): JSX.Element {
 
   const handleSubmit = (evt: FormEvent<HTMLFormElement>) => {
     evt.preventDefault();
-    
-    console.log('=== SUBMITTING FORM ===');
-    console.log('Comment:', comment);
-    console.log('Rating:', rating);
-    
+
     if (comment.length < 50 || rating === 0) {
-      console.log('Validation failed!');
       return;
     }
 
-    // Вызываем функцию родителя
-    onAddReview({
-      comment,
-      rating,
-    });
-    
-    // Сбрасываем форму
+    onAddReview({ comment, rating });
     setComment('');
     setRating(0);
-    
-    console.log('Form cleared!');
   };
 
-  const handleRatingChange = (value: number) => {
-    console.log('Rating changed to:', value);
-    setRating(value);
-  };
-
-  const handleCommentChange = (evt: React.ChangeEvent<HTMLTextAreaElement>) => {
+  const handleCommentChange = (evt: ChangeEvent<HTMLTextAreaElement>) => {
     setComment(evt.target.value);
   };
 
   return (
     <>
       <SvgSprite />
-      
-      <form 
-        className="reviews__form form" 
-        action="#" 
-        method="post"
-        onSubmit={handleSubmit}
-      >
+      <form className="reviews__form form" action="#" method="post" onSubmit={handleSubmit}>
         <label className="reviews__label form__label" htmlFor="review">
           Your review
         </label>
-        
+
         <div className="reviews__rating-form form__rating">
           {[5, 4, 3, 2, 1].map((value) => (
             <Fragment key={value}>
@@ -79,7 +54,7 @@ function ReviewForm({ onAddReview }: ReviewFormProps): JSX.Element {
                 id={`${value}-stars`}
                 type="radio"
                 checked={rating === value}
-                onChange={() => handleRatingChange(value)}
+                onChange={() => setRating(value)}
               />
               <label
                 htmlFor={`${value}-stars`}
@@ -99,7 +74,7 @@ function ReviewForm({ onAddReview }: ReviewFormProps): JSX.Element {
             </Fragment>
           ))}
         </div>
-        
+
         <textarea
           className="reviews__textarea form__textarea"
           id="review"
@@ -110,14 +85,14 @@ function ReviewForm({ onAddReview }: ReviewFormProps): JSX.Element {
           minLength={50}
           maxLength={300}
         />
-        
+
         <div className="reviews__button-wrapper">
           <p className="reviews__help">
             To submit review please make sure to set{' '}
             <span className="reviews__star">rating</span> and describe your stay with at least{' '}
             <b className="reviews__text-amount">50 characters</b>.
           </p>
-          
+
           <button
             className="reviews__submit form__submit button"
             type="submit"

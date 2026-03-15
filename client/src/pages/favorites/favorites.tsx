@@ -1,13 +1,19 @@
-// src/pages/favorites/favorites.tsx
-import { Link } from 'react-router-dom'; // ← ДОБАВЬТЕ ЭТОТ ИМПОРТ
+import { Link } from 'react-router-dom';
 import { Logo } from '../../components/logo/logo';
 import { FavoriteCardList } from '../../components/favorite-card-list/favorite-card-list';
-import { useAppSelector } from '../../hooks';
-import { AppRoute } from '../../const'; // ← ДОБАВЬТЕ ЭТОТ ИМПОРТ
+import { useAppDispatch, useAppSelector } from '../../hooks';
+import { AppRoute } from '../../const';
+import { logoutAction } from '../../store/api-actions';
 
 function FavoritesPage(): JSX.Element {
+  const dispatch = useAppDispatch();
   const offersList = useAppSelector((state) => state.offers);
+  const userData = useAppSelector((state) => state.userData);
   const favoriteOffers = offersList.filter((offer) => offer.isFavorite);
+
+  const handleLogout = () => {
+    dispatch(logoutAction());
+  };
 
   return (
     <div className="page page--favorites">
@@ -20,19 +26,19 @@ function FavoritesPage(): JSX.Element {
             <nav className="header__nav">
               <ul className="header__nav-list">
                 <li className="header__nav-item user">
-                    <div className="header__avatar-wrapper user__avatar-wrapper"></div>
-                    <span className="header__user-name user__name">Myemail@gmail.com</span>
-                    <Link  // ← ИЗМЕНИТЕ <a> НА <Link>
+                  <div className="header__avatar-wrapper user__avatar-wrapper"></div>
+                  <span className="header__user-name user__name">{userData?.email}</span>
+                  <Link
                     to={AppRoute.Favorites}
                     className="header__nav-link header__nav-link--profile"
                   >
                     <span className="header__favorite-count">{favoriteOffers.length}</span>
-                  </Link> {/* ← ЗАКРЫВАЕМ Link */}
+                  </Link>
                 </li>
                 <li className="header__nav-item">
-                  <a className="header__nav-link" href="#">
+                  <button className="header__nav-link" type="button" onClick={handleLogout}>
                     <span className="header__signout">Sign out</span>
-                  </a>
+                  </button>
                 </li>
               </ul>
             </nav>
@@ -44,7 +50,7 @@ function FavoritesPage(): JSX.Element {
         <div className="page__favorites-container container">
           <section className="favorites">
             <h1 className="favorites__title">Saved listing</h1>
-            
+
             {favoriteOffers.length === 0 ? (
               <div className="favorites__status-wrapper">
                 <b className="favorites__status">Nothing yet saved.</b>
@@ -53,7 +59,9 @@ function FavoritesPage(): JSX.Element {
                 </p>
               </div>
             ) : (
-              <FavoriteCardList offersList={favoriteOffers} />
+              <ul className="favorites__list">
+                <FavoriteCardList offersList={favoriteOffers} />
+              </ul>
             )}
           </section>
         </div>

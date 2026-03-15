@@ -1,48 +1,47 @@
-// src/pages/main-page/main-page.tsx
 import { useState } from 'react';
-import { Link } from 'react-router-dom'; // ← ДОБАВЬТЕ ЭТОТ ИМПОРТ
+import { Link } from 'react-router-dom';
 import { Logo } from '../../components/logo/logo';
 import { CitiesCardList } from '../../components/cities-card-list/cities-card-list';
 import { Map } from '../../components/map/map';
 import { CitiesList } from '../../components/cities-list/cities-list';
 import { SortOptions } from '../../components/sort-options/sort-options';
-import { useAppSelector } from '../../hooks';
+import { useAppDispatch, useAppSelector } from '../../hooks';
 import { getOffersByCity, sortOffersByType } from '../../utils';
 import { SortOffer } from '../../types/sort';
-import { AppRoute } from '../../const'; // ← ДОБАВЬТЕ ЭТОТ ИМПОРТ
+import { AppRoute, AuthorizationStatus } from '../../const';
+import { logoutAction } from '../../store/api-actions';
 
 function MainPage(): JSX.Element {
+  const dispatch = useAppDispatch();
   const selectedCity = useAppSelector((state) => state.city);
   const allOffers = useAppSelector((state) => state.offers);
-  
+  const userData = useAppSelector((state) => state.userData);
+  const authorizationStatus = useAppSelector((state) => state.authorizationStatus);
+
   const [activeSort, setActiveSort] = useState<SortOffer>('Popular');
   const [selectedOfferId, setSelectedOfferId] = useState<string | null>(null);
 
-  // Получаем предложения для выбранного города
   const selectedCityOffers = getOffersByCity(selectedCity?.name, allOffers);
-  
-  // Сортируем предложения
   const sortedOffers = sortOffersByType(selectedCityOffers, activeSort);
-  
-  // Получаем выбранное предложение для подсветки на карте
-  const selectedOffer = selectedOfferId 
-    ? allOffers.find((offer) => offer.id === selectedOfferId) 
+  const selectedOffer = selectedOfferId
+    ? allOffers.find((offer) => offer.id === selectedOfferId)
     : undefined;
-  
 
-  const handleCardHover = (id: string) => {
-    setSelectedOfferId(id);
+  const handleCardHover = (offerId: string) => {
+    setSelectedOfferId(offerId);
   };
 
   const handleCardLeave = () => {
     setSelectedOfferId(null);
   };
 
-  const favoriteOffersCount = useAppSelector((state) => 
-  state.offers.filter((offer) => offer.isFavorite).length
-  );
+  const handleLogout = () => {
+    dispatch(logoutAction());
+  };
 
-    return (
+  const favoriteOffersCount = allOffers.filter((offer) => offer.isFavorite).length;
+
+  return (
     <div className="page page--gray page--main">
       <header className="header">
         <div className="container">
@@ -52,21 +51,32 @@ function MainPage(): JSX.Element {
             </div>
             <nav className="header__nav">
               <ul className="header__nav-list">
-                <li className="header__nav-item user">
-                    <div className="header__avatar-wrapper user__avatar-wrapper"></div>
-                    <span className="header__user-name user__name">Myemail@gmail.com</span>
-                                      <Link  // ← ИЗМЕНИТЕ <a> НА <Link>
-                    to={AppRoute.Favorites}
-                    className="header__nav-link header__nav-link--profile"
-                  >
-                    <span className="header__favorite-count">{favoriteOffersCount}</span>
-                  </Link> {/* ← ЗАКРЫВАЕМ Link */}
-                </li>
-                <li className="header__nav-item">
-                  <a className="header__nav-link" href="#">
-                    <span className="header__signout">Sign out</span>
-                  </a>
-                </li>
+                {authorizationStatus === AuthorizationStatus.Auth ? (
+                  <>
+                    <li className="header__nav-item user">
+                      <div className="header__avatar-wrapper user__avatar-wrapper"></div>
+                      <span className="header__user-name user__name">{userData?.email}</span>
+                      <Link
+                        to={AppRoute.Favorites}
+                        className="header__nav-link header__nav-link--profile"
+                      >
+                        <span className="header__favorite-count">{favoriteOffersCount}</span>
+                      </Link>
+                    </li>
+                    <li className="header__nav-item">
+                      <button className="header__nav-link" type="button" onClick={handleLogout}>
+                        <span className="header__signout">Sign out</span>
+                      </button>
+                    </li>
+                  </>
+                ) : (
+                  <li className="header__nav-item user">
+                    <Link to={AppRoute.Login} className="header__nav-link header__nav-link--profile">
+                      <div className="header__avatar-wrapper user__avatar-wrapper"></div>
+                      <span className="header__login">Sign in</span>
+                    </Link>
+                  </li>
+                )}
               </ul>
             </nav>
           </div>
@@ -88,7 +98,7 @@ function MainPage(): JSX.Element {
                 {sortedOffers.length} places to stay in {selectedCity?.name}
               </b>
               <SortOptions activeSorting={activeSort} onChange={setActiveSort} />
-              <CitiesCardList 
+              <CitiesCardList
                 offersList={sortedOffers}
                 onMouseEnter={handleCardHover}
                 onMouseLeave={handleCardLeave}
