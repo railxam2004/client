@@ -1,25 +1,37 @@
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useEffect, useState } from 'react';
 import { Logo } from '../../components/logo/logo';
 import { CitiesCardList } from '../../components/cities-card-list/cities-card-list';
 import { Map } from '../../components/map/map';
 import { CitiesList } from '../../components/cities-list/cities-list';
 import { SortOptions } from '../../components/sort-options/sort-options';
+import { HeaderUserNav } from '../../components/header-user-nav/header-user-nav';
+import { LoadingScreen } from '../../components/loading-screen/loading-screen';
 import { useAppDispatch, useAppSelector } from '../../hooks';
 import { getOffersByCity, sortOffersByType } from '../../utils';
 import { SortOffer } from '../../types/sort';
-import { AppRoute, AuthorizationStatus } from '../../const';
-import { logoutAction } from '../../store/api-actions';
+import { fetchOffersAction, logoutAction } from '../../store/api-actions';
 
 function MainPage(): JSX.Element {
   const dispatch = useAppDispatch();
   const selectedCity = useAppSelector((state) => state.city);
   const allOffers = useAppSelector((state) => state.offers);
+  const favoriteOffers = useAppSelector((state) => state.favoriteOffers);
   const userData = useAppSelector((state) => state.userData);
   const authorizationStatus = useAppSelector((state) => state.authorizationStatus);
+  const isOffersDataLoading = useAppSelector((state) => state.isOffersDataLoading);
 
   const [activeSort, setActiveSort] = useState<SortOffer>('Popular');
   const [selectedOfferId, setSelectedOfferId] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (allOffers.length === 0) {
+      dispatch(fetchOffersAction());
+    }
+  }, [allOffers.length, dispatch]);
+
+  if (isOffersDataLoading) {
+    return <LoadingScreen />;
+  }
 
   const selectedCityOffers = getOffersByCity(selectedCity?.name, allOffers);
   const sortedOffers = sortOffersByType(selectedCityOffers, activeSort);
@@ -39,8 +51,6 @@ function MainPage(): JSX.Element {
     dispatch(logoutAction());
   };
 
-  const favoriteOffersCount = allOffers.filter((offer) => offer.isFavorite).length;
-
   return (
     <div className="page page--gray page--main">
       <header className="header">
@@ -50,34 +60,12 @@ function MainPage(): JSX.Element {
               <Logo />
             </div>
             <nav className="header__nav">
-              <ul className="header__nav-list">
-                {authorizationStatus === AuthorizationStatus.Auth ? (
-                  <>
-                    <li className="header__nav-item user">
-                      <div className="header__avatar-wrapper user__avatar-wrapper"></div>
-                      <span className="header__user-name user__name">{userData?.email}</span>
-                      <Link
-                        to={AppRoute.Favorites}
-                        className="header__nav-link header__nav-link--profile"
-                      >
-                        <span className="header__favorite-count">{favoriteOffersCount}</span>
-                      </Link>
-                    </li>
-                    <li className="header__nav-item">
-                      <button className="header__nav-link" type="button" onClick={handleLogout}>
-                        <span className="header__signout">Sign out</span>
-                      </button>
-                    </li>
-                  </>
-                ) : (
-                  <li className="header__nav-item user">
-                    <Link to={AppRoute.Login} className="header__nav-link header__nav-link--profile">
-                      <div className="header__avatar-wrapper user__avatar-wrapper"></div>
-                      <span className="header__login">Sign in</span>
-                    </Link>
-                  </li>
-                )}
-              </ul>
+              <HeaderUserNav
+                authorizationStatus={authorizationStatus}
+                email={userData?.email}
+                favoriteOffersCount={favoriteOffers.length}
+                onLogout={handleLogout}
+              />
             </nav>
           </div>
         </div>

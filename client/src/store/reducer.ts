@@ -8,9 +8,13 @@ import {
   requireAuthorization,
   setCurrentOffer,
   setError,
+  setFavoriteOffers,
+  setFavoritesDataLoadingStatus,
   setOfferDataLoadingStatus,
+  setOfferNotFoundStatus,
   setOffersDataLoadingStatus,
   setReviews,
+  setReviewSendingStatus,
   setUserData,
 } from './action';
 import { AuthorizationStatus, CITIES_LOCATION } from '../const';
@@ -22,25 +26,33 @@ const defaultCity = getCity('Paris', CITIES_LOCATION);
 export type InitialState = {
   city: CityOffer | undefined;
   offers: OffersList[];
+  favoriteOffers: OffersList[];
   currentOffer: FullOffer | null;
   reviews: Review[];
   userData: UserData | null;
   authorizationStatus: AuthorizationStatusType;
   error: string | null;
   isOffersDataLoading: boolean;
+  isFavoritesDataLoading: boolean;
   isOfferDataLoading: boolean;
+  isReviewSending: boolean;
+  isOfferNotFound: boolean;
 }
 
 const initialState: InitialState = {
   city: defaultCity,
   offers: [],
+  favoriteOffers: [],
   currentOffer: null,
   reviews: [],
   userData: null,
   authorizationStatus: AuthorizationStatus.Unknown,
   error: null,
   isOffersDataLoading: false,
+  isFavoritesDataLoading: false,
   isOfferDataLoading: false,
+  isReviewSending: false,
+  isOfferNotFound: false,
 };
 
 const reducer = createReducer(initialState, (builder) => {
@@ -51,8 +63,14 @@ const reducer = createReducer(initialState, (builder) => {
     .addCase(offersCityList, (state, action) => {
       state.offers = action.payload;
     })
+    .addCase(setFavoriteOffers, (state, action) => {
+      state.favoriteOffers = action.payload;
+    })
     .addCase(setCurrentOffer, (state, action) => {
       state.currentOffer = action.payload;
+    })
+    .addCase(setOfferNotFoundStatus, (state, action) => {
+      state.isOfferNotFound = action.payload;
     })
     .addCase(setReviews, (state, action) => {
       state.reviews = action.payload;
@@ -69,8 +87,14 @@ const reducer = createReducer(initialState, (builder) => {
     .addCase(setOffersDataLoadingStatus, (state, action) => {
       state.isOffersDataLoading = action.payload;
     })
+    .addCase(setFavoritesDataLoadingStatus, (state, action) => {
+      state.isFavoritesDataLoading = action.payload;
+    })
     .addCase(setOfferDataLoadingStatus, (state, action) => {
       state.isOfferDataLoading = action.payload;
+    })
+    .addCase(setReviewSendingStatus, (state, action) => {
+      state.isReviewSending = action.payload;
     });
 });
 

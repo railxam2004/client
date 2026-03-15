@@ -1,4 +1,4 @@
-import { AxiosInstance } from 'axios';
+import { AxiosError, AxiosInstance } from 'axios';
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { AppDispatch, State } from '../types/state';
 import { FullOffer, OffersList } from '../types/offer';
@@ -8,15 +8,23 @@ import {
   requireAuthorization,
   setCurrentOffer,
   setError,
+  setFavoriteOffers,
+  setFavoritesDataLoadingStatus,
   setOfferDataLoadingStatus,
+  setOfferNotFoundStatus,
   setOffersDataLoadingStatus,
   setReviews,
+  setReviewSendingStatus,
   setUserData,
 } from './action';
 import { saveToken, dropToken } from '../services/token';
 import { APIRoute, AuthorizationStatus, TIMEOUT_SHOW_ERROR } from '../const';
 import { AuthData, UserData } from '../types/user-data';
 import { store } from './index';
+
+type ErrorResponse = {
+  message: string;
+};
 
 export const fetchOffersAction = createAsyncThunk<void, undefined, {
   dispatch: AppDispatch;
@@ -40,6 +48,28 @@ export const fetchOffersAction = createAsyncThunk<void, undefined, {
   },
 );
 
+export const fetchFavoriteOffersAction = createAsyncThunk<void, undefined, {
+  dispatch: AppDispatch;
+  state: State;
+  extra: AxiosInstance;
+}>(
+  'data/fetchFavoriteOffers',
+  async (_arg, { dispatch, extra: api, rejectWithValue }) => {
+    dispatch(setFavoritesDataLoadingStatus(true));
+
+    try {
+      const { data } = await api.get<OffersList[]>(APIRoute.Favorite);
+      dispatch(setFavoriteOffers(data));
+    } catch {
+      dispatch(setError('Не удалось загрузить избранные предложения'));
+      dispatch(clearErrorAction());
+      return rejectWithValue('Failed to fetch favorite offers');
+    } finally {
+      dispatch(setFavoritesDataLoadingStatus(false));
+    }
+  },
+);
+
 export const fetchOfferPageDataAction = createAsyncThunk<void, string, {
   dispatch: AppDispatch;
   state: State;
@@ -48,6 +78,7 @@ export const fetchOfferPageDataAction = createAsyncThunk<void, string, {
   'data/fetchOfferPageData',
   async (offerId, { dispatch, extra: api, rejectWithValue }) => {
     dispatch(setOfferDataLoadingStatus(true));
+    dispatch(setOfferNotFoundStatus(false));
     dispatch(setCurrentOffer(null));
     dispatch(setReviews([]));
 
@@ -59,7 +90,16 @@ export const fetchOfferPageDataAction = createAsyncThunk<void, string, {
 
       dispatch(setCurrentOffer(offerResponse.data));
       dispatch(setReviews(reviewsResponse.data));
-    } catch {
+    } catch (error) {
+      const axiosError = error as AxiosError<ErrorResponse>;
+
+      if (axiosError.response?.status === 404) {
+        dispatch(setOfferNotFoundStatus(true));
+      } else {
+        dispatch(setError('Не удалось загрузить информацию о предложении'));
+        dispatch(clearErrorAction());
+      }
+
       return rejectWithValue('Failed to fetch offer page data');
     } finally {
       dispatch(setOfferDataLoadingStatus(false));
@@ -73,15 +113,19 @@ export const addReviewAction = createAsyncThunk<void, { offerId: string; comment
   extra: AxiosInstance;
 }>(
   'data/addReview',
-  async ({ offerId, comment, rating }, { dispatch, extra: api, rejectWithValue }) => {
+  async ({ offerId, comment, rating }, { dispatch, extra: api, getState, rejectWithValue }) => {
+    dispatch(setReviewSendingStatus(true));
+
     try {
-      await api.post(`${APIRoute.Comments}/${offerId}`, { comment, rating });
-      dispatch(fetchOfferPageDataAction(offerId));
-      dispatch(fetchOffersAction());
+      const { data } = await api.post<Review>(`${APIRoute.Comments}/${offerId}`, { comment, rating });
+      const currentReviews = getState().reviews;
+      dispatch(setReviews([data, ...currentReviews]));
     } catch {
       dispatch(setError('Не удалось отправить отзыв'));
       dispatch(clearErrorAction());
       return rejectWithValue('Failed to add review');
+    } finally {
+      dispatch(setReviewSendingStatus(false));
     }
   },
 );
@@ -97,7 +141,9 @@ export const checkAuthAction = createAsyncThunk<void, undefined, {
       const { data } = await api.get<UserData>(APIRoute.Login);
       dispatch(setUserData(data));
       dispatch(requireAuthorization(AuthorizationStatus.Auth));
+      await dispatch(fetchFavoriteOffersAction());
     } catch {
+      dispatch(setFavoriteOffers([]));
       dispatch(setUserData(null));
       dispatch(requireAuthorization(AuthorizationStatus.NoAuth));
     }
@@ -116,9 +162,11 @@ export const loginAction = createAsyncThunk<UserData, AuthData, {
       saveToken(data.token);
       dispatch(setUserData(data));
       dispatch(requireAuthorization(AuthorizationStatus.Auth));
+      await dispatch(fetchFavoriteOffersAction());
       return data;
     } catch {
       dropToken();
+      dispatch(setFavoriteOffers([]));
       dispatch(setUserData(null));
       dispatch(requireAuthorization(AuthorizationStatus.NoAuth));
       return rejectWithValue('Login failed');
@@ -133,10 +181,14 @@ export const logoutAction = createAsyncThunk<void, undefined, {
 }>(
   'user/logout',
   async (_arg, { dispatch, extra: api }) => {
-    await api.delete(APIRoute.Logout);
-    dropToken();
-    dispatch(setUserData(null));
-    dispatch(requireAuthorization(AuthorizationStatus.NoAuth));
+    try {
+      await api.delete(APIRoute.Logout);
+    } finally {
+      dropToken();
+      dispatch(setFavoriteOffers([]));
+      dispatch(setUserData(null));
+      dispatch(requireAuthorization(AuthorizationStatus.NoAuth));
+    }
   },
 );
 

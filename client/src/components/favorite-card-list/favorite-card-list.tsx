@@ -1,15 +1,19 @@
-// src/components/favorite-card-list/favorite-card-list.tsx
+import { Link } from 'react-router-dom';
 import { FavoriteCard } from '../favorite-card/favorite-card';
 import { OffersList } from '../../types/offer';
+import { AppRoute } from '../../const';
+import { useAppDispatch } from '../../hooks';
+import { changeCity } from '../../store/action';
 
 type FavoriteCardListProps = {
   offersList: OffersList[];
 };
 
 function FavoriteCardList({ offersList }: FavoriteCardListProps): JSX.Element {
-  // Группировка по городам (если нужно по макету)
+  const dispatch = useAppDispatch();
+
   const groupedByCity: Record<string, OffersList[]> = {};
-  
+
   offersList.forEach((offer) => {
     if (!groupedByCity[offer.city.name]) {
       groupedByCity[offer.city.name] = [];
@@ -23,9 +27,13 @@ function FavoriteCardList({ offersList }: FavoriteCardListProps): JSX.Element {
         <li key={cityName} className="favorites__locations-items">
           <div className="favorites__locations locations locations--current">
             <div className="locations__item">
-              <a className="locations__item-link" href="#">
+              <Link
+                className="locations__item-link"
+                to={AppRoute.Main}
+                onClick={() => dispatch(changeCity(cityOffers[0].city))}
+              >
                 <span>{cityName}</span>
-              </a>
+              </Link>
             </div>
           </div>
           <div className="favorites__places">

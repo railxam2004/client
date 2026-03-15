@@ -13,23 +13,30 @@ const SvgSprite = () => (
 );
 
 type ReviewFormProps = {
-  onAddReview: (reviewData: { comment: string; rating: number }) => void;
+  onAddReview: (reviewData: { comment: string; rating: number }) => Promise<void>;
+  isSubmitting: boolean;
 };
 
-function ReviewForm({ onAddReview }: ReviewFormProps): JSX.Element {
+function ReviewForm({ onAddReview, isSubmitting }: ReviewFormProps): JSX.Element {
   const [comment, setComment] = useState('');
   const [rating, setRating] = useState(0);
 
-  const handleSubmit = (evt: FormEvent<HTMLFormElement>) => {
+  const isSubmitDisabled = comment.length < 50 || rating === 0 || isSubmitting;
+
+  const handleSubmit = async (evt: FormEvent<HTMLFormElement>) => {
     evt.preventDefault();
 
-    if (comment.length < 50 || rating === 0) {
+    if (isSubmitDisabled) {
       return;
     }
 
-    onAddReview({ comment, rating });
-    setComment('');
-    setRating(0);
+    try {
+      await onAddReview({ comment, rating });
+      setComment('');
+      setRating(0);
+    } catch {
+      // Ошибка уже обработана в store/api-actions, значения формы сохраняем.
+    }
   };
 
   const handleCommentChange = (evt: ChangeEvent<HTMLTextAreaElement>) => {
@@ -55,6 +62,7 @@ function ReviewForm({ onAddReview }: ReviewFormProps): JSX.Element {
                 type="radio"
                 checked={rating === value}
                 onChange={() => setRating(value)}
+                disabled={isSubmitting}
               />
               <label
                 htmlFor={`${value}-stars`}
@@ -84,6 +92,7 @@ function ReviewForm({ onAddReview }: ReviewFormProps): JSX.Element {
           onChange={handleCommentChange}
           minLength={50}
           maxLength={300}
+          disabled={isSubmitting}
         />
 
         <div className="reviews__button-wrapper">
@@ -96,9 +105,9 @@ function ReviewForm({ onAddReview }: ReviewFormProps): JSX.Element {
           <button
             className="reviews__submit form__submit button"
             type="submit"
-            disabled={comment.length < 50 || rating === 0}
+            disabled={isSubmitDisabled}
           >
-            Submit
+            {isSubmitting ? 'Sending...' : 'Submit'}
           </button>
         </div>
       </form>

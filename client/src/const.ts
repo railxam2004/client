@@ -7,6 +7,7 @@ export const AppRoute = {
   Login: '/login',
   Favorites: '/favorites',
   Offer: '/offer/:id',
+  NotFound: '/404',
 } as const;
 
 export const AuthorizationStatus = {

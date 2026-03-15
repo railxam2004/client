@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Navigate } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '../../hooks';
 import PageNotFound from '../page-not-found/page-not-found';
 import { Logo } from '../../components/logo/logo';
@@ -8,6 +8,7 @@ import { ReviewsList } from '../../components/reviews-list/reviews-list';
 import { Map } from '../../components/map/map';
 import { NearbyPlacesList } from '../../components/nearby-places-list/nearby-places-list';
 import { LoadingScreen } from '../../components/loading-screen/loading-screen';
+import { HeaderUserNav } from '../../components/header-user-nav/header-user-nav';
 import { AppRoute, AuthorizationStatus } from '../../const';
 import { addReviewAction, fetchOfferPageDataAction, logoutAction } from '../../store/api-actions';
 
@@ -19,8 +20,11 @@ function OfferPage(): JSX.Element {
   const offer = useAppSelector((state) => state.currentOffer);
   const reviews = useAppSelector((state) => state.reviews);
   const offers = useAppSelector((state) => state.offers);
+  const favoriteOffers = useAppSelector((state) => state.favoriteOffers);
   const userData = useAppSelector((state) => state.userData);
   const isOfferDataLoading = useAppSelector((state) => state.isOfferDataLoading);
+  const isOfferNotFound = useAppSelector((state) => state.isOfferNotFound);
+  const isReviewSending = useAppSelector((state) => state.isReviewSending);
 
   useEffect(() => {
     if (id) {
@@ -28,8 +32,8 @@ function OfferPage(): JSX.Element {
     }
   }, [dispatch, id]);
 
-  if (!id) {
-    return <PageNotFound />;
+  if (!id || isOfferNotFound) {
+    return <Navigate to={AppRoute.NotFound} />;
   }
 
   if (isOfferDataLoading) {
@@ -45,10 +49,9 @@ function OfferPage(): JSX.Element {
     .slice(0, 3);
 
   const pointsForMap = [...nearbyOffers, offer];
-  const favoriteOffersCount = offers.filter((item) => item.isFavorite).length;
 
-  const handleAddReview = (reviewData: { comment: string; rating: number }) => {
-    dispatch(addReviewAction({ offerId: id, ...reviewData }));
+  const handleAddReview = async (reviewData: { comment: string; rating: number }) => {
+    await dispatch(addReviewAction({ offerId: id, ...reviewData })).unwrap();
   };
 
   const handleLogout = () => {
@@ -65,34 +68,12 @@ function OfferPage(): JSX.Element {
                 <Logo />
               </div>
               <nav className="header__nav">
-                <ul className="header__nav-list">
-                  {authorizationStatus === AuthorizationStatus.Auth ? (
-                    <>
-                      <li className="header__nav-item user">
-                        <div className="header__avatar-wrapper user__avatar-wrapper"></div>
-                        <span className="header__user-name user__name">{userData?.email}</span>
-                        <Link
-                          to={AppRoute.Favorites}
-                          className="header__nav-link header__nav-link--profile"
-                        >
-                          <span className="header__favorite-count">{favoriteOffersCount}</span>
-                        </Link>
-                      </li>
-                      <li className="header__nav-item">
-                        <button className="header__nav-link" type="button" onClick={handleLogout}>
-                          <span className="header__signout">Sign out</span>
-                        </button>
-                      </li>
-                    </>
-                  ) : (
-                    <li className="header__nav-item user">
-                      <Link to={AppRoute.Login} className="header__nav-link header__nav-link--profile">
-                        <div className="header__avatar-wrapper user__avatar-wrapper"></div>
-                        <span className="header__login">Sign in</span>
-                      </Link>
-                    </li>
-                  )}
-                </ul>
+                <HeaderUserNav
+                  authorizationStatus={authorizationStatus}
+                  email={userData?.email}
+                  favoriteOffersCount={favoriteOffers.length}
+                  onLogout={handleLogout}
+                />
               </nav>
             </div>
           </div>
@@ -173,7 +154,7 @@ function OfferPage(): JSX.Element {
                 <section className="offer__reviews reviews">
                   <ReviewsList reviews={reviews} />
                   {authorizationStatus === AuthorizationStatus.Auth && (
-                    <ReviewForm onAddReview={handleAddReview} />
+                    <ReviewForm onAddReview={handleAddReview} isSubmitting={isReviewSending} />
                   )}
                 </section>
               </div>
@@ -189,12 +170,14 @@ function OfferPage(): JSX.Element {
             </section>
           </section>
 
-          <section className="near-places places">
-            <div className="near-places__container container">
-              <h2 className="near-places__title">Other places in the neighbourhood</h2>
-              <NearbyPlacesList offers={nearbyOffers} />
-            </div>
-          </section>
+          {nearbyOffers.length > 0 && (
+            <section className="near-places places">
+              <div className="near-places__container container">
+                <h2 className="near-places__title">Other places in the neighbourhood</h2>
+                <NearbyPlacesList offers={nearbyOffers} />
+              </div>
+            </section>
+          )}
         </main>
       </div>
     </div>
